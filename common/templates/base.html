@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'menu.css' %}" />
+    {% block head %}
+    {% endblock %}
+    <title>{% block title %}myLibrary{% endblock %}</title>
+</head>
+
+<body>
+    <div>
+        <ul class="navbar">
+            {% if user.is_authenticated %}
+                <li id="profile"><a href="{% url 'profile_url' %}">Profile</a></li>
+                <li id="logout" class="right"><a href="{% url 'logout_url' %}">Logout</a></li>
+            {% else %}
+                <li id="signup"><a href="{% url 'signup_url' %}">Signup</a></li>
+                <li id="login"><a href="{% url 'login_url' %}">Login</a></li>
+            {% endif %}
+            <li class="right"><a href="/admin/">Admin</a></li>
+        </ul>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+    <script type="text/javascript">
+        document.querySelector("#{{page}}").firstElementChild.classList.add('active');
+    </script>
+
+    {% block scipt %}
+    {% endblock %}
+</body>
+</html>
