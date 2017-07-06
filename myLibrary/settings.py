@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'bootstrap3',
     'accounts',
     'mainPage',
 ]
@@ -129,4 +129,3 @@ STATICFILES_DIRS = (
 LOGIN_REDIRECT_URL = '/'
 
 # STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
-

@@ -1,13 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
+<!--Load bootstrap-->
+{#{% load bootstrap3 %}#}
+{#{% bootstrap_css %}#}
+{#{% bootstrap_javascript %}#}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
+{% block title %}Login{% endblock %}
 
-</body>
-</html>
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<div id="profile_div">
+    <h2>Login</h2>
+
+    <form role="form" method="post">
+        {% csrf_token %}
+{#        {% bootstrap_form form layout='inline' %}#}
+{#        {% buttons submit='Login' layout='inline' %}{% endbuttons %}#}
+        {{ form }}
+        <button type="submit">Log in</button>
+    </form>
+
+</div>
+
+{% endblock %}

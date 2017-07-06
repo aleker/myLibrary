@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
 from accounts.forms import SignUpForm
 
 
+# TODO remove:
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -21,5 +21,7 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-def index(request):
+@login_required
+def profile(request):
     return render(request, "profile.html", {})
+
