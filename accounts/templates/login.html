@@ -1,29 +1,87 @@
-{% extends 'base.html' %}
-{% load static %}
-<!--Load bootstrap-->
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{#<!--Load bootstrap-->#}
 {#{% load bootstrap3 %}#}
 {#{% bootstrap_css %}#}
 {#{% bootstrap_javascript %}#}
+{##}
+{#{% block title %}Login{% endblock %}#}
+{##}
+{#{% block head %}#}
+{#<link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{##}
+{#<div id="profile_div">#}
+{#    <h2>Login</h2>#}
+{##}
+{#    <form role="form" method="post">#}
+{#        {% csrf_token %}#}
+{#        {% bootstrap_form form layout='inline' %}#}
+{#        {% buttons submit='Login' layout='inline' %}{% endbuttons %}#}
+{#        {{ form }}#}
+{#        <button type="submit">Log in</button>#}
+{#    </form>#}
+{##}
+{#</div>#}
+{##}
+{#{% endblock %}#}
 
-{% block title %}Login{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+{% load account socialaccount %}
 
 {% block head %}
-<link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
 {% endblock %}
 
 {% block content %}
+    <div id="profile_div">
 
-<div id="profile_div">
-    <h2>Login</h2>
+        <h2>{% trans "Sign In" %}</h2>
 
-    <form role="form" method="post">
-        {% csrf_token %}
-{#        {% bootstrap_form form layout='inline' %}#}
-{#        {% buttons submit='Login' layout='inline' %}{% endbuttons %}#}
-        {{ form }}
-        <button type="submit">Log in</button>
-    </form>
+        {% get_providers as socialaccount_providers %}
 
-</div>
+        {% if socialaccount_providers %}
+            <p>{% blocktrans with site.name as site_name %}Please sign in with one
+                of your existing third party accounts. Or, <a href="/accounts/signup/">sign up</a>
+                for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+
+            <div class="socialaccount_ballot">
+
+                <ul class="socialaccount_providers">
+                    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                </ul>
+
+                <div class="login-or">{% trans 'or' %}</div>
+
+            </div>
+
+            {% include "socialaccount/snippets/login_extra.html" %}
+
+        {% else %}
+            <p>{% blocktrans %}If you have not created an account yet, then please
+                <a href="/accounts/signup/">sign up</a> first.{% endblocktrans %}</p>
+        {% endif %}
+
+        <form class="login" method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {% bootstrap_form form layout='inline' %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+            <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+{#            <button class="primaryAction" type="submit">{% trans "Sign In" %}</button>#}
+            {% buttons submit='Sign in' layout='inline' %}{% endbuttons %}
+        </form>
+
+    </div>
 
 {% endblock %}

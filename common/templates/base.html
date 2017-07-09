@@ -1,4 +1,8 @@
 {% load static %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,12 +20,15 @@
         <ul class="navbar">
             {% if user.is_authenticated %}
                 <li id="profile"><a href="{% url 'profile_url' %}">Profile</a></li>
+                <li id="catalog"><a href="{% url 'catalog_url' %}">My Catalog</a></li>
                 <li id="logout" class="right"><a href="{% url 'logout_url' %}">Logout</a></li>
             {% else %}
-                <li id="signup"><a href="{% url 'signup_url' %}">Signup</a></li>
-                <li id="login"><a href="{% url 'login_url' %}">Login</a></li>
+                <li id="main_page"><a href="/">Main Page</a></li>
+                <li id="signup"><a href="/accounts/signup/">Sign Up</a></li>
+                <li id="login"><a href="/accounts/login/">Sign In</a></li>
+                <li class="right"><a href="/admin/">Admin</a></li>
+
             {% endif %}
-            <li class="right"><a href="/admin/">Admin</a></li>
         </ul>
     </div>
 

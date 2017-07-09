@@ -1,22 +1,51 @@
-{% extends 'base.html' %}
-{% load static %}
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block title %}Signup{% endblock %}#}
+{##}
+{#{% block head %}#}
+{#<link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{##}
+{#<div id="profile_div">#}
+{#    <h2>Sign up</h2>#}
+{##}
+{#    <form role="form" method="post">#}
+{#        {% csrf_token %}#}
+{#        {{ form }}#}
+{#        <button type="submit">Sign up</button>#}
+{#    </form>#}
+{#</div>#}
+{##}
+{#{% endblock %}#}
 
-{% block title %}Signup{% endblock %}
+{% extends "base.html" %}
+{% load static %}}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
 {% endblock %}
 
 {% block content %}
+    <div id="profile_div">
+        <h2>{% trans "Sign Up" %}</h2>
 
-<div id="profile_div">
-    <h2>Sign up</h2>
-
-    <form role="form" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Sign up</button>
-    </form>
-</div>
-
+        <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {% bootstrap_form form layout='inline' %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+            {% buttons submit='Sign un' layout='inline' %}{% endbuttons %}
+{#            <button type="submit">{% trans "Sign Up" %} &raquo;</button>#}
+        </form>
+    </div>
 {% endblock %}
