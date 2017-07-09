@@ -9,37 +9,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'menu.css' %}" />
     {% block head %}
     {% endblock %}
     <title>{% block title %}myLibrary{% endblock %}</title>
 </head>
 
 <body>
-    <div>
-        <ul class="navbar">
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav">
             {% if user.is_authenticated %}
                 <li id="profile"><a href="{% url 'profile_url' %}">Profile</a></li>
                 <li id="catalog"><a href="{% url 'catalog_url' %}">My Catalog</a></li>
-                <li id="logout" class="right"><a href="{% url 'logout_url' %}">Logout</a></li>
             {% else %}
                 <li id="main_page"><a href="/">Main Page</a></li>
-                <li id="signup"><a href="/accounts/signup/">Sign Up</a></li>
-                <li id="login"><a href="/accounts/login/">Sign In</a></li>
-                <li class="right"><a href="/admin/">Admin</a></li>
-
+            {% endif %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li id="logout"><a href="{% url 'logout_url' %}"><span class="glyphicon glyphicon-log-out"></span>
+                    Logout</a></li>
+            {% else %}
+                <li id="signup"><a href="/accounts/signup/"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+                </li>
+                <li id="login"><a href="/accounts/login/"><span class="glyphicon glyphicon-log-in"></span> Sign In</a>
+                </li>
+                <li><a href="/admin/">Admin</a></li>
             {% endif %}
         </ul>
     </div>
+</nav>
 
-    {% block content %}
-    {% endblock %}
+{% block content %}
+{% endblock %}
 
-    <script type="text/javascript">
-        document.querySelector("#{{page}}").firstElementChild.classList.add('active');
-    </script>
+<script type="text/javascript">
+    document.querySelector("#{{page}}").firstElementChild.classList.add('active');
+</script>
 
-    {% block scipt %}
-    {% endblock %}
+{% block scipt %}
+{% endblock %}
 </body>
 </html>

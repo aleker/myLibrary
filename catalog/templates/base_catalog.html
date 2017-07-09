@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'catalog.css' %}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <ul class="nav nav-pills">
+            <li ><a href="{% url 'catalog_url' %}">Full Catalog</a></li>
+            <li><a href="{% url 'all_books_url' %}">All Books</a></li>
+            <li ><a href="">All Authors</a></li>
+        </ul>
+
+        {% block catalog_content %}{% endblock %}
+    </div>
+
+{% endblock %}
