@@ -1,0 +1,14 @@
+{% extends "base_catalog.html" %}
+
+{% block catalog_content %}
+    <h1>Author: {{ author.first_name }} {{ author.last_name }}</h1>
+
+    <div style="margin-left:20px;margin-top:20px">
+        <h4>Books</h4>
+        {% for book in book_list %}
+            <li><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></li>
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
