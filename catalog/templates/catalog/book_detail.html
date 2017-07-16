@@ -3,24 +3,35 @@
 {% block catalog_content %}
     <h1>Title: {{ book.title }}</h1>
 
-    <p><strong>Author:</strong> <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></p> <!-- author detail link not yet defined -->
+    <p><strong>Author:</strong> {{ book.author }}</p>
     <p><strong>Summary:</strong> {{ book.summary }}</p>
-    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
     <p><strong>Genre:</strong> {% for genre in book.genre.all %}
         {{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% if book.isbn_13 != None %}
+        <form action="{% url 'book_isbn_url'%}?isbn={{book.isbn_13}}&pk={{book.pk}}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="isbn" class="btn-link">{{ book.isbn_13 }}</button>
+        </form>
+{#        <p><strong>ISBN:</strong> <a href="/catalog/bo/?&isbn={{book.isbn_13}}">{{ book.isbn_13 }}</a></p>#}
+    {% endif %}
 
     <div style="margin-left:20px;margin-top:20px">
-        <h4>Copies</h4>
-
-        {% for copy in book.bookinstance_set.all %}
-            <p class="
-                {% if copy.status == 'a' %}text-success
-                {% elif copy.status == 'b' %}text-danger
-                {% else %}text-warning{% endif %}">
-                {{ copy.get_status_display }}</p>
-            {% if copy.status != 'a' %}<p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>{% endif %}
-            <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
-        {% endfor %}
+        <h4>Copies:</h4>
+        <ul class="list-group">
+            {% for copy in book.bookinstance_set.all %}
+                <li class="list-group-item">
+                    <span class="text-muted"><strong>Owner:</strong> {{ copy.book_owner }} </span>
+                    <span class="
+                    {% if copy.status == 'a' %}text-success
+                    {% elif copy.status == 'l' or copy.status == 'o' %}text-warning{% endif %}">
+                       ({{ copy.get_status_display }})
+                    </span>
+                    {% if copy.status == 'l' or copy.status == 'o' %}
+                        <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 
 {% endblock %}

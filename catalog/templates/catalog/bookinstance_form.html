@@ -1,15 +1,79 @@
 {% extends "base_library.html" %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 {% block catalog_content %}
     <h1>Add book</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">Add from <strong>LIBRARY SYSTEM</strong></div>
+        <div class="panel-body">
+            <form action="" method="post">
+                {% csrf_token %}
+                {% bootstrap_form form layout='horizontal' %}
+                {#        <input  type="submit" name="sub_adding" value="Submit"/>#}
+                {% bootstrap_button "Add book" button_class="btn-default" button_type="submit" name="sub_adding" %}
 
-    <form action="" method="post">
-    {% csrf_token %}
-    <table>
-    {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit" />
+            </form>
+        </div>
+    </div>
 
-</form>
+    <div class="panel panel-primary">
+        <div class="panel-heading">Add from <strong>OUTER SOURCE</strong></div>
+        <div class="panel-body">
+            <form action="" method="post">
+                {% csrf_token %}
+                <input class="form-control" type="text" name="search_value"
+                       placeholder="Enter book title, author's name or ISBN."/>
+                {#        <input type="submit" name="sub_searching" value="Search"/>#}
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="search_type" value="intitle" checked> By title
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="search_type" value="inauthor"> By author
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="search_type" value="isbn"> By ISBN
+                    </label>
+                </div>
+                {% bootstrap_button "Search" button_class="btn-primary pull-right" button_type="submit" name="sub_searching" %}
+
+            </form>
+
+            {% if found_books %}
+                <p class="text-muted"><strong>Found: </strong>{{ found_books.totalItems }}</p>
+                {% if found_books.totalItems > 0 %}
+                    <div class="list-group">
+                        {% for found_book in found_books.items %}
+                            <ul class="list-group-item">
+                                <img src="{{ found_book.volumeInfo.imageLinks.smallThumbnail }}"
+                                     style="max-height:100px" alt="">
+                                <a href="{{ found_book.volumeInfo.canonicalVolumeLink }}">
+                                    <strong>{{ found_book.volumeInfo.title }}</strong>
+                                </a>
+                                ({% for found_author in found_book.volumeInfo.authors %}
+                                    {{ found_author }}
+                                {% endfor %})
+                                {% if found_book.volumeInfo.industryIdentifiers.1.identifier %}
+
+                                <form action="{% url 'users_book_create_from_api_url' %}" method="post">
+                                {% csrf_token %}
+                                    <strong> ISBN: </strong>
+                                    <input type="text" class="text-muted" name="isbn"
+                                           value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" readonly />
+                                    {% bootstrap_button "Add to My Library" button_class="btn-primary" button_type="submit" name="add_outer" %}
+{#                                TODO add to my library not only for isbn#}
+                                </form>
+                                {% endif %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
 
 {% endblock %}
