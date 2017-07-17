@@ -1,13 +1,16 @@
 import googlebooks
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, DeleteView, UpdateView
 
 from catalog import models
 from catalog.form import BookInstanceForm, BookFormFromAPI
+from myLibrary import settings
 from .models import Book, BookInstance
 from django.views import generic
 
@@ -49,7 +52,8 @@ def book_detail_view(request, pk):
         book_id = Book.objects.get(pk=pk)
     except Book.DoesNotExist:
         raise Http404("Book does not exist")
-    return render(request, 'catalog/book_detail.html', context={'book': book_id, })
+    return render(request, 'catalog/book_detail.html', context={'book': book_id,
+                                                                'cover_url': settings.blank_cover_url, })
 
 
 class UsersBookListView(LoginRequiredMixin, generic.ListView):
@@ -87,7 +91,19 @@ def create_book_instance(request):
 
 class BookInstanceDelete(DeleteView):
     model = BookInstance
-    success_url = reverse_lazy('users_books_url')
+    template_name_suffix = '_delete_form'
+
+    def get_success_url(self):
+        return reverse('users_books_url')
+
+
+class BookInstanceUpdate(UpdateView):
+    model = BookInstance
+    fields = ['status', 'due_back', 'book_holder', 'comment']
+    template_name_suffix = '_update_form'
+
+    def get_success_url(self):
+        return reverse('users_books_url')
 
 
 def isbn_page(request):
@@ -106,9 +122,7 @@ def get_book_url_by_isbn(isbn):
         return link
     return None
 
-# TODO - not working
-# reads only from 13 isbn
-# adding redirects
+
 def create_book_from_api(request):
     if request.method == 'POST':
         api = googlebooks.Api()
@@ -117,16 +131,18 @@ def create_book_from_api(request):
         if book and book["totalItems"] > 0:
             title = book["items"][0]["volumeInfo"]["title"]
             author = book["items"][0]["volumeInfo"]["authors"][0]
-            book_exists = Book.objects.get(title=title, author=author)
+            image_url = book["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
+            book_exists = Book.objects.filter(title=title, author=author).first()
             if book_exists is None:
-                new_book = models.Book(title=title, author=author, isbn_13=isbn)
+                new_book = models.Book(title=title, author=author, isbn_13=isbn, cover_url=image_url)
                 new_book.save()
+                transaction.commit()
                 book_exists = new_book
             else:
-                book_instance_exists = models.BookInstance(book=book_exists, book_owner=request.user)
+                book_instance_exists = BookInstance.objects.filter(book=book_exists, book_owner=request.user).first()
                 if book_instance_exists is not None:
-                    return HttpResponse("Ta książka jest już w bibliotece")
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             new_instance = models.BookInstance(book=book_exists, book_owner=request.user)
             new_instance.save()
-            return HttpResponse("Dodane")
-    return HttpResponse("Nie POST")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

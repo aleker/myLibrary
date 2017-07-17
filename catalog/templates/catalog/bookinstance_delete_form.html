@@ -1,0 +1,21 @@
+{% extends "base_library.html" %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block catalog_content %}
+    <h1>Delete book</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ bookinstance.book.title }} ({{ bookinstance.book.author }})</div>
+        <div class="panel-body">
+            <p class="text-muted">Are you sure you want to <strong>remove</strong> this book from your library?</p>
+            <form action="" method="post" style="display: inline">{% csrf_token %}
+                {{ form.as_p }}
+                {% bootstrap_button "Remove" button_class="btn-default" button_type="submit"%}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

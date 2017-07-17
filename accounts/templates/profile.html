@@ -5,6 +5,8 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
+{% block nav %}{% include "navbar.html"  with active='profile'%}{% endblock %}
+
 {% block title %}Profile{% endblock %}
 
 {% block head %}

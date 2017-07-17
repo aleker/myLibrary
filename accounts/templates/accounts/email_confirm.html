@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load account %}
 
+{% block nav %}{% include "navbar.html"  with active='main_page'%}{% endblock %}
+
 {% block head %}{% trans "Confirm E-mail Address" %}{% endblock %}
 
 

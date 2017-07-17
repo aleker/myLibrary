@@ -15,31 +15,7 @@
 </head>
 
 <body>
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <ul class="nav navbar-nav">
-            {% if user.is_authenticated %}
-                <li id="profile"><a href="{% url 'profile_url' %}">Profile</a></li>
-                <li id="catalog"><a href="{% url 'catalog_url' %}">Catalog</a></li>
-                <li id="users-library"><a href="{% url 'users_books_url' %}">My Library</a></li>
-            {% else %}
-                <li id="main_page"><a href="/">Main Page</a></li>
-            {% endif %}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            {% if user.is_authenticated %}
-                <li id="logout"><a href="{% url 'logout_url' %}"><span class="glyphicon glyphicon-log-out"></span>
-                    Logout</a></li>
-            {% else %}
-                <li id="signup"><a href="/accounts/signup/"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
-                </li>
-                <li id="login"><a href="/accounts/login/"><span class="glyphicon glyphicon-log-in"></span> Sign In</a>
-                </li>
-                <li><a href="/admin/">Admin</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
+{% block nav %}{% include "navbar.html" %}{% endblock %}
 
 {% block content %}
 {% endblock %}

@@ -8,6 +8,8 @@
 {% load i18n %}
 {% load account socialaccount %}
 
+{% block nav %}{% include "navbar.html"  with active='library'%}{% endblock %}
+
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'catalog.css' %}"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">

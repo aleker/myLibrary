@@ -1,17 +1,25 @@
 {% extends "base_catalog.html" %}
 
+
 {% block catalog_content %}
     <h1>Title: {{ book.title }}</h1>
+    {% if book.cover_url %}
+        <img src="{{ book.cover_url }}" style="max-height:200px">
+    {% else %}
+        <img src="{{ cover_url }}" style="max-height:200px">
+    {% endif %}
 
     <p><strong>Author:</strong> {{ book.author }}</p>
     <p><strong>Summary:</strong> {{ book.summary }}</p>
     <p><strong>Genre:</strong> {% for genre in book.genre.all %}
         {{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
     {% if book.isbn_13 != None %}
-        <form action="{% url 'book_isbn_url'%}?isbn={{book.isbn_13}}&pk={{book.pk}}" method="post">
+        <span class="text-muted"><strong>ISBN:</strong>
+        <form action="{% url 'book_isbn_url'%}?isbn={{book.isbn_13}}&pk={{book.pk}}" method="post" style="display:inline">
             {% csrf_token %}
             <button type="submit" name="isbn" class="btn-link">{{ book.isbn_13 }}</button>
         </form>
+        </span>
 {#        <p><strong>ISBN:</strong> <a href="/catalog/bo/?&isbn={{book.isbn_13}}">{{ book.isbn_13 }}</a></p>#}
     {% endif %}
 

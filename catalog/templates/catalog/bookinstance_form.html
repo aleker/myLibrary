@@ -58,13 +58,11 @@
                                 {% endfor %})
                                 {% if found_book.volumeInfo.industryIdentifiers.1.identifier %}
 
-                                <form action="{% url 'users_book_create_from_api_url' %}" method="post">
+                                <form action="{% url 'users_book_create_from_api_url' %}" method="post" style="display: inline" class="pull-right">
                                 {% csrf_token %}
-                                    <strong> ISBN: </strong>
                                     <input type="text" class="text-muted" name="isbn"
-                                           value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" readonly />
+                                           value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" hidden />
                                     {% bootstrap_button "Add to My Library" button_class="btn-primary" button_type="submit" name="add_outer" %}
-{#                                TODO add to my library not only for isbn#}
                                 </form>
                                 {% endif %}
                             </ul>

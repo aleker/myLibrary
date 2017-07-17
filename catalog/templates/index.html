@@ -2,13 +2,16 @@
 
 {% block catalog_content %}
 
-<h1>Content</h1>
+    <h1>Content</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">The library has the following record counts:</div>
+        <ul class="list-group-item panel-body">
+            <li class="list-group-item"><strong>Books:</strong> {{ num_books }}</li>
+            <li class="list-group-item"><strong>Copies:</strong> {{ num_instances }}</li>
+            <li class="list-group-item"><strong>Copies available:</strong> {{ num_instances_available }}</li>
+        </ul>
 
-  <p>The library has the following record counts:</p>
-  <ul>
-    <li><strong>Books:</strong> {{ num_books }}</li>
-    <li><strong>Copies:</strong> {{ num_instances }}</li>
-    <li><strong>Copies available:</strong> {{ num_instances_available }}</li>
-  </ul>
+    </div>
+    </div>
 
 {% endblock %}

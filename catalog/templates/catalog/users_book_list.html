@@ -1,25 +1,38 @@
 {% extends "base_library.html" %}
 
 {% block catalog_content %}
+
     <h1>My books</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">Books list</div>
+        <div class="panel-body">
 
-    {% if bookinstance_list %}
-        <ol class="list-group">
-            {% for book_instance in bookinstance_list %}
-                <li class="list-group-item {% if book_instance.is_overdue %}text-danger{% endif %}">
-                    <a href="{% url 'book_detail_url' book_instance.book.pk %}">{{ book_instance.book.title }}</a>
-                    {% if book_instance.status == 'l' %}
-                        <span class="text-warning">
+            {% if bookinstance_list %}
+                <ol class="list-group">
+                    {% for book_instance in bookinstance_list %}
+                        <li class="list-group-item {% if book_instance.is_overdue %}text-danger{% endif %}">
+                            <a href="{% url 'book_detail_url' book_instance.book.pk %}">{{ book_instance.book.title }}</a>
+                            <span class="pull-right">
+                                <a href="{% url 'users_books_update_url' book_instance.pk %}"> Edit </a>
+                                <a href="{% url 'users_books_delete_url' book_instance.pk %}">
+                                    <span class="text-muted"> Delete </span>
+                                </a>
+                            </span>
+
+                            {% if book_instance.status == 'l' %}
+                                <span class="text-warning">
                             (<strong>loaned to </strong>
-                            {{ book_instance.book_holder}} <strong>until </strong> {{ book_instance.due_back }})
+                            {{ book_instance.book_holder }} <strong>until </strong> {{ book_instance.due_back }})
                         </span>
-                    {%  endif %}
-                </li>
-            {% endfor %}
-        </ol>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+                </div>
+                </div>
 
-    {% else %}
-        <p>There are no books in your private catalog.</p>
-    {% endif %}
+            {% else %}
+                <p>There are no books in your private catalog.</p>
+            {% endif %}
 
 {% endblock %}

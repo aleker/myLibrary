@@ -31,6 +31,8 @@
 
 {% load i18n %}
 
+{% block nav %}{% include "navbar.html"  with active='signup'%}{% endblock %}
+
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
 {% endblock %}

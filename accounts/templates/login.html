@@ -38,6 +38,8 @@
 {% load i18n %}
 {% load account socialaccount %}
 
+{% block nav %}{% include "navbar.html"  with active='login'%}{% endblock %}
+
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}" />
 {% endblock %}
@@ -67,7 +69,7 @@
             {% include "socialaccount/snippets/login_extra.html" %}
 
         {% else %}
-            <p>{% blocktrans %}If you have not created an account yet, then please
+            <p class="alert alert-info">{% blocktrans %}If you have not created an account yet, then please
                 <a href="/accounts/signup/">sign up</a> first.{% endblocktrans %}</p>
         {% endif %}
 

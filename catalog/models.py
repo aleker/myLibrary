@@ -37,9 +37,10 @@ class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200, validators=[alphanumeric])
     summary = models.TextField(null=True, blank=True, max_length=1000, help_text="Enter a brief description of the book")
-    genre = models.ManyToManyField(Genre, null=True, blank=True, help_text="Select a genre for this book")
+    genre = models.ManyToManyField(Genre, blank=True, help_text="Select a genre for this book")
     isbn_13 = models.CharField('ISBN', max_length=13, null=True, blank=True,
                                help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
+    cover_url = models.URLField(null=True, blank=True)
 
     class Meta:
         ordering = ["title"]
@@ -75,6 +76,7 @@ class BookInstance(models.Model):
     due_back = models.DateField(null=True, blank=True)
     book_owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="owned_books")
     book_holder = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="held_books")
+    comment = models.TextField(null=True, blank=True, max_length=1000)
 
     class Meta:
         ordering = ['book_owner', 'book']
