@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'invitations',
     'bootstrap3',
     'accounts',
     'mainPage',
@@ -148,6 +149,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # ALLAUTH
+# --------------------
 SITE_ID = 1
 
 
@@ -175,5 +177,18 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = 'library.project111@gmail.com'
 EMAIL_HOST_PASSWORD = 'projectpassword'
+
+# DJANGO-INVITATIONS
+# --------------------
+ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
+INVITATIONS_INVITATION_EXPIRY = 1
+# If True, invitations will be accepted after users finish signup:
+INVITATIONS_ACCEPT_INVITE_AFTER_SIGNUP = True
+INVITATIONS_SIGNUP_REDIRECT = 'accounts/signup/'
+INVITATIONS_LOGIN_REDIRECT = 'login_url'
+INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
+INVITE_MODE = True
+
+
 
 blank_cover_url = 'http://blog.hrc.utexas.edu/files/2014/05/LemonCover_001.jpg'

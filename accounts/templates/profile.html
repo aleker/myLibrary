@@ -5,7 +5,10 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
-{% block nav %}{% include "navbar.html"  with active='profile'%}{% endblock %}
+{% load i18n %}
+
+
+{% block nav %}{% include "navbar.html"  with active='profile' %}{% endblock %}
 
 {% block title %}Profile{% endblock %}
 
@@ -14,7 +17,28 @@
 {% endblock %}
 
 {% block content %}
+
     <div class="container">
         <h2>Your Profile</h2>
+        <div class="panel panel-default">
+            <div class="panel-heading">Friends</div>
+            <div class="panel-body">
+
+                {% if friends_list %}
+                    {% for friend in friends_list %}
+                        <p>{{ friend.email }} {{ friend.status }}</p>
+                    {%  endfor %}
+                {% endif %}
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input class="form-control" type="text" name="email_value"
+                           placeholder="Enter the e-mail of person you want to invite to your library."/>
+                    {% bootstrap_button "Send invitation" button_class="btn-default" button_type="submit" name="sub_invitation" %}
+                </form>
+            </div>
+        </div>
+
     </div>
+
 {% endblock %}

@@ -1,18 +1,16 @@
 import googlebooks
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, DeleteView, UpdateView
-
-from catalog import models
-from catalog.form import BookInstanceForm, BookFormFromAPI
-from myLibrary import settings
-from .models import Book, BookInstance
+from django.urls import reverse
+from django.views.generic import DeleteView, UpdateView
 from django.views import generic
+
+from catalog.models import BookInstance, Book
+from catalog.form import BookInstanceForm
+from myLibrary import settings
 
 
 @login_required
@@ -134,7 +132,7 @@ def create_book_from_api(request):
             image_url = book["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
             book_exists = Book.objects.filter(title=title, author=author).first()
             if book_exists is None:
-                new_book = models.Book(title=title, author=author, isbn_13=isbn, cover_url=image_url)
+                new_book = Book(title=title, author=author, isbn_13=isbn, cover_url=image_url)
                 new_book.save()
                 transaction.commit()
                 book_exists = new_book
@@ -142,7 +140,7 @@ def create_book_from_api(request):
                 book_instance_exists = BookInstance.objects.filter(book=book_exists, book_owner=request.user).first()
                 if book_instance_exists is not None:
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            new_instance = models.BookInstance(book=book_exists, book_owner=request.user)
+            new_instance = BookInstance(book=book_exists, book_owner=request.user)
             new_instance.save()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
