@@ -12,7 +12,7 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {% bootstrap_form form layout='horizontal' %}
-                {#        <input  type="submit" name="sub_adding" value="Submit"/>#}
+                        <input  type="submit" name="sub_adding" value="Submit"/>
                 {% bootstrap_button "Add book" button_class="btn-default" button_type="submit" name="sub_adding" %}
             </form>
         </div>
@@ -25,7 +25,7 @@
                 {% csrf_token %}
                 <input class="form-control" type="text" name="search_value"
                        placeholder="Enter book title, author's name or ISBN."/>
-                {#        <input type="submit" name="sub_searching" value="Search"/>#}
+                        <input type="submit" name="sub_searching" value="Search"/>
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary active">
                         <input type="radio" name="search_type" value="intitle" checked> By title
@@ -57,7 +57,7 @@
                                 {% endfor %})
                                 {% if found_book.volumeInfo.industryIdentifiers.1.identifier %}
 
-                                <form action="{% url 'users_book_create_from_api_url' pk_user=user.pk %}" method="post" style="display: inline" class="pull-right">
+                                <form action="{% url 'users_book_create_from_api_url' pk_user=view.kwargs.pk_user %}" method="post" style="display: inline" class="pull-right">
                                 {% csrf_token %}
                                     <input type="text" class="text-muted" name="isbn"
                                            value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" hidden />
@@ -74,3 +74,4 @@
 
 
 {% endblock %}
+

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.generic import DeleteView
 from invitations.forms import Invitation
 
 from accounts.models import InGroup
@@ -54,4 +56,10 @@ def add_to_invited(owner, email):
         new_in_group.save()
     return
 
-# TODO pododawac @login_required
+
+# class InGroupDelete(DeleteView):
+#     model = InGroup
+#     template_name_suffix = '_delete_form'
+#
+#     def get_success_url(self):
+#         return reverse('users_books_url')

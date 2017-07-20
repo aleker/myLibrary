@@ -7,7 +7,7 @@ from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
 
 from catalog.models import BookInstance, Book
@@ -71,7 +71,9 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
 
 
 @login_required
-def create_book_instance(request, pk_user):
+def create_book_instance(request, **kwargs):
+    #user_with_pk = User.objects.get(id=pk_user)
+    user_with_pk = request.user
     if request.method == 'POST':
         if 'sub_adding' in request.POST:
             form = BookInstanceForm(request.POST)
@@ -91,16 +93,30 @@ def create_book_instance(request, pk_user):
             form = BookInstanceForm(request.POST)
             return render(request, 'catalog/bookinstance_form.html', {'form': form})
     else:
-        form = BookInstanceForm()
-    return render(request, 'catalog/bookinstance_form.html', {'form': form})
+        form = BookInstanceForm(initial={'book_owner': user_with_pk})
+        request.session['form'] = form
+    # return render(request, 'catalog/bookinstance_form.html', {'form': form})
+    return redirect('/create/', pk_user=34)
+
+
+# TODO usunąć
+class BookInstanceCreate(CreateView):
+    model = BookInstance
+    template_name_suffix = '_form'
+    fields = '__all__'
+
+    def get_success_url(self, **kwargs):
+        pk_user = self.kwargs.get('pk_user', '')
+        return reverse('users_books_url', kwargs={'pk_user': pk_user})
 
 
 class BookInstanceDelete(DeleteView):
     model = BookInstance
     template_name_suffix = '_delete_form'
 
-    def get_success_url(self):
-        return reverse('users_books_url')
+    def get_success_url(self, **kwargs):
+        pk_user = self.kwargs.get('pk_user', '')
+        return reverse('users_books_url', kwargs={'pk_user': pk_user})
 
 
 class BookInstanceUpdate(UpdateView):
@@ -108,8 +124,9 @@ class BookInstanceUpdate(UpdateView):
     fields = ['status', 'due_back', 'book_holder', 'comment']
     template_name_suffix = '_update_form'
 
-    def get_success_url(self):
-        return reverse('users_books_url')
+    def get_success_url(self, **kwargs):
+        pk_user = self.kwargs.get('pk_user', '')
+        return reverse('users_books_url', kwargs={'pk_user': pk_user})
 
 
 def isbn_page(request):
@@ -156,3 +173,4 @@ def create_book_from_api(request, pk_user):
             messages.add_message(request, messages.SUCCESS, 'Book added to library.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
