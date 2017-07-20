@@ -1,6 +1,8 @@
 import googlebooks
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -45,6 +47,7 @@ class BookListView(generic.ListView):
 #     model = Book
 
 
+@login_required
 def book_detail_view(request, pk):
     try:
         book_id = Book.objects.get(pk=pk)
@@ -59,11 +62,16 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
     template_name = 'catalog/users_book_list.html'
     paginate_by = 10
 
-    def get_queryset(self):
-        return BookInstance.objects.filter(book_owner=self.request.user).order_by('due_back')
+    # filter what you want to return:
+    def get_queryset(self, **kwarg):
+        pk_user = self.kwargs.get('pk_user', '')
+        user = User.objects.get(id=pk_user)
+        # return BookInstance.objects.filter(book_owner=self.request.user).order_by('due_back')
+        return BookInstance.objects.filter(book_owner=user).order_by('due_back')
 
 
-def create_book_instance(request):
+@login_required
+def create_book_instance(request, pk_user):
     if request.method == 'POST':
         if 'sub_adding' in request.POST:
             form = BookInstanceForm(request.POST)
@@ -121,7 +129,9 @@ def get_book_url_by_isbn(isbn):
     return None
 
 
-def create_book_from_api(request):
+@login_required
+def create_book_from_api(request, pk_user):
+    user = User.objects.get(id=pk_user)
     if request.method == 'POST':
         api = googlebooks.Api()
         isbn = request.POST["isbn"]
@@ -137,10 +147,12 @@ def create_book_from_api(request):
                 transaction.commit()
                 book_exists = new_book
             else:
-                book_instance_exists = BookInstance.objects.filter(book=book_exists, book_owner=request.user).first()
+                book_instance_exists = BookInstance.objects.filter(book=book_exists, book_owner=user).first()
                 if book_instance_exists is not None:
+                    messages.add_message(request, messages.WARNING, 'This book had already been in your library.')
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            new_instance = BookInstance(book=book_exists, book_owner=request.user)
+            new_instance = BookInstance(book=book_exists, book_owner=user)
             new_instance.save()
+            messages.add_message(request, messages.SUCCESS, 'Book added to library.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -92,4 +92,5 @@ class BookInstance(models.Model):
             return '%s (%s)' % (self.book.title, self.book_owner.username)
 
 
+
 # from tutorial: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models

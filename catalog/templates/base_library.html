@@ -20,8 +20,8 @@
 {% block content %}
     <div class="container">
         <ul class="nav nav-pills">
-            <li><a href="{% url 'users_books_url' %}">My books</a></li>
-            <li><a href="{% url 'users_book_create_url' %}">Add book</a></li>
+            <li><a href="{% url 'users_books_url' pk_user=user.pk %}">My books</a></li>
+            <li><a href="{% url 'users_book_create_url' pk_user=user.pk %}">Add book</a></li>
         </ul>
 
         {% block catalog_content %}{% endblock %}
