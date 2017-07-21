@@ -5,7 +5,7 @@
 {% bootstrap_javascript %}
 
 <nav class=
-        "navbar{% if request.resolver_match.kwargs.pk_user|add:"0" != user.pk|add:"0" %} navbar-inverse
+        "navbar{% if request.resolver_match.kwargs.pk_user and request.resolver_match.kwargs.pk_user|add:"0" != user.pk|add:"0" %} navbar-inverse
         {% else %} navbar-default
         {% endif %}">
     <div class="container-fluid">
