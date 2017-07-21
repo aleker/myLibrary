@@ -25,9 +25,19 @@
             <div class="panel-body">
 
                 {% if friends_list %}
+                    <ol class="list-group">
                     {% for friend in friends_list %}
-                        <p>{{ friend.email }} {{ friend.status }}</p>
+                        <a href="{% if friend.pk_user %}{% url 'users_books_url' friend.pk_user %}
+                            {% else %}
+                            {% endif %}"
+                           class="list-group-item">{{ friend.username }} ({{ friend.email }})
+                            <strong class=" {% if friend.status == 'exists' %}text-success
+                                {% else %}text-danger
+                                {% endif %}">{{ friend.status }}
+                            </strong>
+                        </a>
                     {%  endfor %}
+                    </ol>
                 {% endif %}
 
                 <form action="" method="post">

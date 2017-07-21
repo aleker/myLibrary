@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from . import views
@@ -14,5 +14,6 @@ urlpatterns = [
     # url(r'^(?P<pk_user>\d+)/mybooks/create/$', views.BookInstanceCreate.as_view(), name='users_book_create_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/create/$', views.create_book_instance, name='users_book_create_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/createFromApi/$', views.create_book_from_api, name='users_book_create_from_api_url'),
+
 
 ]

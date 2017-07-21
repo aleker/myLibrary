@@ -39,9 +39,15 @@ def friends(owner):
     owners_invitations = InGroup.objects.filter(library_owner=owner)
     for invitations in owners_invitations:
         if User.objects.filter(email=invitations.invited).exists():
-            friends_with_status.append({'email': invitations.invited, 'status': 'exists'})
+            friend = User.objects.filter(email=invitations.invited).first()
+            friends_with_status.append({'email': invitations.invited,
+                                        'status': 'exists',
+                                        'username': friend.username,
+                                        'pk_user': friend.pk})
         else:
-            friends_with_status.append({'email': invitations.invited, 'status': 'not_exists'})
+            friends_with_status.append({'email': invitations.invited,
+                                        'status': 'not exists',
+                                        'username': ""})
     return friends_with_status
 
 
