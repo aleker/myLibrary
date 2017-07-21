@@ -11,7 +11,7 @@ from django.views.generic import DeleteView, UpdateView
 from django.views import generic
 
 from catalog.models import BookInstance, Book
-from catalog.form import BookInstanceForm
+from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from myLibrary import settings
 
 
@@ -72,12 +72,16 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
 
 @login_required
 def create_book_instance(request, pk_user):
+    user = User.objects.get(id=pk_user)
     if request.method == 'POST':
         if 'sub_adding' in request.POST:
+            post = request.POST.copy()  # to make it mutable
+            post['book_owner'] = user
+            request.POST = post         # and update original POST in the end
             form = BookInstanceForm(request.POST)
             if form.is_valid():
                 form.save()
-                return redirect('users_books_url')
+                return redirect('users_books_url', pk_user=pk_user)
         elif 'sub_searching' in request.POST:
             form = BookInstanceForm()
             api = googlebooks.Api()
@@ -91,7 +95,10 @@ def create_book_instance(request, pk_user):
             form = BookInstanceForm(request.POST)
             return render(request, 'catalog/bookinstance_form.html', {'form': form})
     else:
-        form = BookInstanceForm()
+        if user == request.user:
+            form = BookInstanceForm()
+        else:
+            form = FriendsBookInstanceForm()
     return render(request, 'catalog/bookinstance_form.html', {'form': form})
 
 
@@ -137,9 +144,13 @@ def create_book_from_api(request, pk_user):
         isbn = request.POST["isbn"]
         book = api.list('isbn:' + isbn)
         if book and book["totalItems"] > 0:
-            title = book["items"][0]["volumeInfo"]["title"]
-            author = book["items"][0]["volumeInfo"]["authors"][0]
-            image_url = book["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
+            try:
+                title = book["items"][0]["volumeInfo"]["title"]
+                author = book["items"][0]["volumeInfo"]["authors"][0]
+                image_url = book["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
+            except:
+                messages.add_message(request, messages.WARNING, 'There is lack of information about chosen book.')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             book_exists = Book.objects.filter(title=title, author=author).first()
             if book_exists is None:
                 new_book = Book(title=title, author=author, isbn_13=isbn, cover_url=image_url)

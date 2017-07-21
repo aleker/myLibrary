@@ -5,7 +5,13 @@ from catalog.models import BookInstance, Book
 class BookInstanceForm(ModelForm):
     class Meta:
         model = BookInstance
-        fields = ('book', 'status', 'due_back', 'book_owner', 'book_holder')
+        fields = ('book', 'status', 'due_back', 'book_holder')
+
+
+class FriendsBookInstanceForm(ModelForm):
+    class Meta:
+        model = BookInstance
+        fields = ('book',)
 
 
 class BookFormFromAPI(ModelForm):
