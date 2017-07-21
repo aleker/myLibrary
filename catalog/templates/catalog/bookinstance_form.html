@@ -46,7 +46,7 @@
                 {% if found_books.totalItems > 0 %}
                     <div class="list-group">
                         {% for found_book in found_books.items %}
-                            <ul class="list-group-item">
+                            <ul class="list-group-item clearfix">
                                 <img src="{{ found_book.volumeInfo.imageLinks.smallThumbnail }}"
                                      style="max-height:100px" alt="">
                                 <a href="{{ found_book.volumeInfo.canonicalVolumeLink }}">

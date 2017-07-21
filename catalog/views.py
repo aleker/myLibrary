@@ -7,9 +7,11 @@ from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, UpdateView
 from django.views import generic
 
+from accounts.decorators import is_friend
 from catalog.models import BookInstance, Book
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from myLibrary import settings
@@ -69,15 +71,19 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
         # return BookInstance.objects.filter(book_owner=self.request.user).order_by('due_back')
         return BookInstance.objects.filter(book_owner=user).order_by('due_back')
 
+    @method_decorator(is_friend())
+    def dispatch(self, *args, **kwargs):
+        return super(UsersBookListView, self).dispatch(*args, **kwargs)
+
 
 @login_required
+# @method_decorator(is_friend())
 def create_book_instance(request, pk_user):
+    # TODO co z dekoratorem
     user = User.objects.get(id=pk_user)
     if request.method == 'POST':
         if 'sub_adding' in request.POST:
-            post = request.POST.copy()  # to make it mutable
-            post['book_owner'] = user
-            request.POST = post         # and update original POST in the end
+            # TODO dodawanie nie dziala bo nie przekazuje usera!
             form = BookInstanceForm(request.POST)
             if form.is_valid():
                 form.save()
@@ -109,6 +115,10 @@ class BookInstanceDelete(DeleteView):
     def get_success_url(self):
         return reverse('users_books_url')
 
+    @method_decorator(is_friend())
+    def dispatch(self, *args, **kwargs):
+        return super(BookInstanceDelete, self).dispatch(*args, **kwargs)
+
 
 class BookInstanceUpdate(UpdateView):
     model = BookInstance
@@ -117,6 +127,10 @@ class BookInstanceUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse('users_books_url')
+
+    @method_decorator(is_friend())
+    def dispatch(self, *args, **kwargs):
+        return super(BookInstanceUpdate, self).dispatch(*args, **kwargs)
 
 
 def isbn_page(request):
@@ -137,7 +151,9 @@ def get_book_url_by_isbn(isbn):
 
 
 @login_required
+# @method_decorator(is_friend())
 def create_book_from_api(request, pk_user):
+    # TODO co z dekoratorem
     user = User.objects.get(id=pk_user)
     if request.method == 'POST':
         api = googlebooks.Api()
@@ -149,7 +165,7 @@ def create_book_from_api(request, pk_user):
                 author = book["items"][0]["volumeInfo"]["authors"][0]
                 image_url = book["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
             except:
-                messages.add_message(request, messages.WARNING, 'There is lack of information about chosen book.')
+                messages.add_message(request, messages.WARNING, 'There is lack of information in chosen book.')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             book_exists = Book.objects.filter(title=title, author=author).first()
             if book_exists is None:
