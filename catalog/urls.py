@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^(?P<pk_user>\d+)/mybooks/$', login_required(views.UsersBookListView.as_view()), name='users_books_url'),
     url(r'^(?P<pk_user>\d+)/myborrowedbooks/$', login_required(views.BorrowedFromListView.as_view()),
         name='borrowed_books_url'),
+    url(r'^(?P<pk_user>\d+)/myborrowedbooks/giveback/(?P<pk>\d+)$', views.give_back_book, name='return_borrowed_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/delete/(?P<pk>\d+)$', login_required(views.BookInstanceDelete.as_view()),
         name='users_books_delete_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/edit/(?P<pk>\d+)$', login_required(views.BookInstanceUpdate.as_view()),

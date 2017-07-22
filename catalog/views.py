@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
 
-from accounts.decorators import is_friend, is_me
+from accounts.decorators import is_friend, is_me, is_friend2, is_me2
 from catalog.models import BookInstance, Book
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from myLibrary import settings
@@ -79,7 +79,7 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwarg):
         pk_user = self.kwargs.get('pk_user', '')
         user = User.objects.get(id=pk_user)
-        return BookInstance.objects.filter(book_owner=user).order_by('due_back')
+        return BookInstance.objects.filter(book_owner=user).order_by('borrowed_day')
 
     @method_decorator(is_friend())
     def dispatch(self, *args, **kwargs):
@@ -94,7 +94,7 @@ class BorrowedFromListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwarg):
         pk_user = self.kwargs.get('pk_user', '')
         user = User.objects.get(id=pk_user)
-        return BookInstance.objects.filter(book_holder=user).order_by('due_back')
+        return BookInstance.objects.filter(book_holder=user).order_by('borrowed_day')
 
     @method_decorator(is_me())
     def dispatch(self, *args, **kwargs):
@@ -102,9 +102,9 @@ class BorrowedFromListView(LoginRequiredMixin, generic.ListView):
 
 
 @login_required
-# @method_decorator(is_friend())
-def create_book_instance(request, pk_user):
-    # TODO co z dekoratorem
+@is_friend2
+def create_book_instance(request, *args, **kwargs):
+    pk_user = kwargs['pk_user']
     user = User.objects.get(id=pk_user)
     if user == request.user:
         form = BookInstanceForm(initial={'book_owner': user, 'status': 'a'})
@@ -143,7 +143,7 @@ class BookInstanceDelete(DeleteView):
     template_name_suffix = '_delete_form'
 
     def get_success_url(self):
-        return reverse('users_books_url')
+        return reverse('users_books_url', kwargs={'pk_user': self.kwargs.get('pk_user', '')})
 
     @method_decorator(is_friend())
     def dispatch(self, *args, **kwargs):
@@ -181,9 +181,9 @@ def get_book_url_by_isbn(isbn):
 
 
 @login_required
-# @method_decorator(is_friend())
-def create_book_from_api(request, pk_user):
-    # TODO co z dekoratorem
+@is_friend2
+def create_book_from_api(request, *args, **kwargs):
+    pk_user = kwargs["pk_user"]
     user = User.objects.get(id=pk_user)
     if request.method == 'POST':
         api = googlebooks.Api()
@@ -214,3 +214,19 @@ def create_book_from_api(request, pk_user):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+@login_required
+@is_me2
+def give_back_book(request, *args, **kwargs):
+    pk_user = kwargs["pk_user"]
+    try:
+        pk_book = kwargs["pk"]
+        book_instance = BookInstance.objects.get(pk=pk_book)
+        book_instance.status = 'a'
+        book_instance.book_holder = None
+        book_instance.borrowed_day = None
+        book_instance.save()
+        messages.add_message(request, messages.SUCCESS, "Borrowed book is no longer in your library.")
+    except:
+        messages.add_message(request, messages.WARNING, 'Problem occurred when giving book back.')
+    return redirect('borrowed_books_url', pk_user=pk_user)

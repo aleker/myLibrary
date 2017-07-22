@@ -16,7 +16,7 @@
                             {% else %} No title - book from outside
                             {% endif %}
                             <span class="pull-right">
-                                <a href=""> Give back </a>
+                                <a href="{% url 'return_borrowed_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> Give back </a>
                             </span>
 
                             {% if book_instance.status == 'l' %}
