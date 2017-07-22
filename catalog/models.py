@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse     # Used to generate URLs by reversing the URL patterns
@@ -72,7 +73,7 @@ class BookInstance(models.Model):
         ('o', 'On outside'),
         ('a', 'Available'),
     )
-    status = models.CharField(max_length=1, choices=LOAN_STATUS, blank=False, default='a', help_text='Book availability')
+    status = models.CharField(max_length=1, choices=LOAN_STATUS, null=False, blank=False, default='a')
     due_back = models.DateField(null=True, blank=True)
     book_owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="owned_books")
     book_holder = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="held_books")
@@ -91,6 +92,13 @@ class BookInstance(models.Model):
         else:
             return '%s (%s)' % (self.book.title, self.book_owner.username)
 
-
+    def clean(self):
+        if self.status != 'a' and self.book_holder is None:
+            raise ValidationError('"Book holder" is required if status is not "Available".')
+        if self.status != 'a' and self.due_back is None:
+            raise ValidationError('"Due back" is required if status is not "Available".')
+        if self.status == 'a':
+            self.book_holder = None
+            self.due_back = None
 
 # from tutorial: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models

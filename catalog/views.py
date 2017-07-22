@@ -8,8 +8,9 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
+from django.views.generic.edit import ModelFormMixin
 
 from accounts.decorators import is_friend
 from catalog.models import BookInstance, Book
@@ -38,15 +39,17 @@ def catalog(request):
 
 
 class BookListView(generic.ListView):
-    #  the generic views look for templates in /application_name/theModelName_list.html
-    # (catalog/book_list.html in this case) inside the application's /application_name/templates/ directory
-    # (/catalog/templates/).
     model = Book
     paginate_by = 10
 
-#
-# class BookDetailView(generic.DetailView):
-#     model = Book
+
+class BookCreate(CreateView):
+    model = Book
+    template_name_suffix = '_create_form'
+    fields = ['title', 'author', 'genre', 'summary', 'isbn_13', 'cover_url']
+
+    def get_success_url(self):
+        return reverse('all_books_url')
 
 
 @login_required
@@ -68,7 +71,6 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwarg):
         pk_user = self.kwargs.get('pk_user', '')
         user = User.objects.get(id=pk_user)
-        # return BookInstance.objects.filter(book_owner=self.request.user).order_by('due_back')
         return BookInstance.objects.filter(book_owner=user).order_by('due_back')
 
     @method_decorator(is_friend())
@@ -81,15 +83,21 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
 def create_book_instance(request, pk_user):
     # TODO co z dekoratorem
     user = User.objects.get(id=pk_user)
+    if user == request.user:
+        form = BookInstanceForm(initial={'book_owner': user, 'status': 'a'})
+    else:
+        form = FriendsBookInstanceForm(initial={'book_owner': user, 'status': 'a'})
+
     if request.method == 'POST':
         if 'sub_adding' in request.POST:
-            # TODO dodawanie nie dziala bo nie przekazuje usera!
-            form = BookInstanceForm(request.POST)
+            if user == request.user:
+                form = BookInstanceForm(request.POST, initial={'book_owner': user, 'status': 'a'})
+            else:
+                form = FriendsBookInstanceForm(request.POST, initial={'book_owner': user, 'status': 'a'})
             if form.is_valid():
                 form.save()
                 return redirect('users_books_url', pk_user=pk_user)
         elif 'sub_searching' in request.POST:
-            form = BookInstanceForm()
             api = googlebooks.Api()
             search_value = request.POST['search_value']
             search_type = request.POST['search_type']
@@ -97,14 +105,13 @@ def create_book_instance(request, pk_user):
             found_books = api.list(search_type + ':' + search_value, maxResults=40, printType="books")
             return render(request, 'catalog/bookinstance_form.html',
                           {'form': form, 'found_books': found_books})
-        else:
-            form = BookInstanceForm(request.POST)
+        elif 'add_outer' in request.POST:
+            if user == request.user:
+                form = BookInstanceForm(request.POST, initial={'book_owner': user, 'status': 'a'})
+            else:
+                form = FriendsBookInstanceForm(request.POST, initial={'book_owner': user, 'status': 'a'})
             return render(request, 'catalog/bookinstance_form.html', {'form': form})
-    else:
-        if user == request.user:
-            form = BookInstanceForm()
-        else:
-            form = FriendsBookInstanceForm()
+    # for GET:
     return render(request, 'catalog/bookinstance_form.html', {'form': form})
 
 
@@ -176,7 +183,7 @@ def create_book_from_api(request, pk_user):
             else:
                 book_instance_exists = BookInstance.objects.filter(book=book_exists, book_owner=user).first()
                 if book_instance_exists is not None:
-                    messages.add_message(request, messages.WARNING, 'This book had already been in your library.')
+                    messages.add_message(request, messages.WARNING, 'This book already is in your library.')
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             new_instance = BookInstance(book=book_exists, book_owner=user)
             new_instance.save()

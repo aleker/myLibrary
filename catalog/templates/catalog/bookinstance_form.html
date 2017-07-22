@@ -12,9 +12,12 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {% bootstrap_form form layout='horizontal' %}
-                {#        <input  type="submit" name="sub_adding" value="Submit"/>#}
                 {% bootstrap_button "Add book" button_class="btn-default" button_type="submit" name="sub_adding" %}
             </form>
+            <div>
+                <p class="text-muted">You haven't found book in our system? You can
+                <a href="{% url 'book_create_url' %}">create</a> book and add it to global catalog!</p>
+            </div>
         </div>
     </div>
 
