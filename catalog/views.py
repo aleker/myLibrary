@@ -52,6 +52,15 @@ class BookCreate(CreateView):
         return reverse('all_books_url')
 
 
+class BookUpdate(UpdateView):
+    model = Book
+    fields = ['title', 'author', 'genre', 'summary', 'isbn_13', 'cover_url']
+    template_name_suffix = '_update_form'
+
+    def get_success_url(self):
+        return reverse('all_books_url')
+
+
 @login_required
 def book_detail_view(request, pk):
     try:
