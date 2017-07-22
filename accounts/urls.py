@@ -1,5 +1,6 @@
 from django.conf.urls import url, include
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
@@ -9,4 +10,5 @@ urlpatterns = [
     url(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login_url'),
     url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout_url'),
     url(r'^profile/$', views.profile, name='profile_url'),
+    url(r'^friends/', include('friends.urls')),
 ]

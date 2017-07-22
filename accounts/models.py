@@ -18,8 +18,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
-
-
-class InGroup(models.Model):
-    library_owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="library_owner")
-    invited = models.EmailField(max_length=70, null=False, blank=False)

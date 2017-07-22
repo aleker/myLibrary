@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+
+{% block nav %}{% include "navbar.html"  with active='friends' %}{% endblock %}
+
+{% block title %}Friends{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}"/>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <h2>Friends</h2>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Friends you invited to <strong>your library</strong></div>
+            <div class="panel-body">
+                {% if friends_list %}
+                    <ol class="list-group">
+                        {% for friend in friends_list %}
+                            <div class="list-group-item">{{ friend.username }} ({{ friend.email }})
+                                <strong class=" {% if friend.status == 'exists' %}text-success
+                                {% else %}text-danger
+                                {% endif %}">{{ friend.status }}
+                                </strong>
+                                <span class="pull-right">
+                                    <a href="{% url 'friend_delete_url' pk=friend.pk_in_group %}">
+                                        <span class="text-muted"> Delete </span>
+                                    </a>
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <div class="text-muted">No friends invited to your library.</div>
+                {% endif %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input class="form-control" type="text" name="email_value"
+                           placeholder="Enter the e-mail of person you want to invite to your library."/>
+                    {% bootstrap_button "Send invitation" button_class="btn-default" button_type="submit" name="sub_invitation" %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">Friends that invited you to <strong>their library</strong></div>
+            <div class="panel-body">
+                {% if invited_by %}
+                    <ol class="list-group">
+                        {% for friend in invited_by %}
+                            <a class="list-group-item" href="{% if friend.pk_user %}{% url 'users_books_url' friend.pk_user %}
+                                                    {% else %}
+                                                    {% endif %}">{{ friend.username }} ({{ friend.email }})
+                                <strong class=" {% if friend.status == 'exists' %}text-success
+                                {% else %}text-danger
+                                {% endif %}">{{ friend.status }}
+                                </strong>
+                            </a>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <div class="text-muted">No available libraries.</div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

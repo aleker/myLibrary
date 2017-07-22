@@ -20,35 +20,8 @@
 
     <div class="container">
         <h2>Your Profile</h2>
-        <div class="panel panel-default">
-            <div class="panel-heading">Friends</div>
-            <div class="panel-body">
-
-                {% if friends_list %}
-                    <ol class="list-group">
-                    {% for friend in friends_list %}
-                        <a href="{% if friend.pk_user %}{% url 'users_books_url' friend.pk_user %}
-                            {% else %}
-                            {% endif %}"
-                           class="list-group-item">{{ friend.username }} ({{ friend.email }})
-                            <strong class=" {% if friend.status == 'exists' %}text-success
-                                {% else %}text-danger
-                                {% endif %}">{{ friend.status }}
-                            </strong>
-                        </a>
-                    {%  endfor %}
-                    </ol>
-                {% endif %}
-
-                <form action="" method="post">
-                    {% csrf_token %}
-                    <input class="form-control" type="text" name="email_value"
-                           placeholder="Enter the e-mail of person you want to invite to your library."/>
-                    {% bootstrap_button "Send invitation" button_class="btn-default" button_type="submit" name="sub_invitation" %}
-                </form>
-            </div>
-        </div>
 
     </div>
+
 
 {% endblock %}

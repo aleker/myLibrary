@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+<!--Load bootstrap-->
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block nav %}{% include "navbar.html"  with active='profile' %}{% endblock %}
+
+{% block title %}Profile{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Delete friend</h1>
+        <div class="panel panel-default">
+            <div class="panel-heading">{{ ingroup.invited }}</div>
+            <div class="panel-body">
+                <p class="text-muted">Are you sure you want to <strong>remove</strong> this friend from your friends
+                    list?</p>
+                <form action="" method="post" style="display: inline">{% csrf_token %}
+                    {{ form.as_p }}
+                    {% bootstrap_button "Remove" button_class="btn-default" button_type="submit" %}
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

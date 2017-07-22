@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 
-from accounts.models import InGroup
+from friends.models import Friends
 
 
 def is_friend():
@@ -9,13 +9,13 @@ def is_friend():
         def wrapper(request, *args, **kwargs):
             try:
                 this_user = request.user
-                friends_list = InGroup.objects.filter(library_owner=this_user)
-                friend_fd = kwargs.get('pk_user', '')
-                friend = User.objects.get(id=friend_fd)
-                if this_user == friend:
+                users_that_invited_this_user = Friends.objects.filter(invited=this_user.email)
+                pk_of_friend_this_user_wants_to_visit = kwargs.get('pk_user', '')
+                friend_this_user_wants_to_visit = User.objects.get(id=pk_of_friend_this_user_wants_to_visit)
+                if this_user == friend_this_user_wants_to_visit:
                     return func(request, *args, **kwargs)
-                for elem in friends_list:
-                    if elem.invited == friend.email:
+                for elem in users_that_invited_this_user:
+                    if elem.library_owner == friend_this_user_wants_to_visit:
                         return func(request, *args, **kwargs)
             except:
                 return HttpResponseForbidden()

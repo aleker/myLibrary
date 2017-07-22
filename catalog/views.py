@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
-from django.views.generic.edit import ModelFormMixin
 
 from accounts.decorators import is_friend
 from catalog.models import BookInstance, Book
