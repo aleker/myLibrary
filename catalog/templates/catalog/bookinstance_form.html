@@ -60,7 +60,7 @@
                                 {% endfor %})
                                 {% if found_book.volumeInfo.industryIdentifiers.1.identifier %}
 
-                                <form action="{% url 'users_book_create_from_api_url' pk_user=user.pk %}" method="post" style="display: inline" class="pull-right">
+                                <form action="{% url 'users_book_create_from_api_url' pk_user=request.resolver_match.kwargs.pk_user %}" method="post" style="display: inline" class="pull-right">
                                 {% csrf_token %}
                                     <input type="text" class="text-muted" name="isbn"
                                            value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" hidden />

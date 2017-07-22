@@ -24,4 +24,19 @@ def is_friend():
     return decorator
 
 
+def is_me():
+    def decorator(func):
+        def wrapper(request, *args, **kwargs):
+            try:
+                this_user = request.user
+                pk_of_friend_this_user_wants_to_visit = kwargs.get('pk_user', '')
+                friend_this_user_wants_to_visit = User.objects.get(id=pk_of_friend_this_user_wants_to_visit)
+                if this_user == friend_this_user_wants_to_visit:
+                    return func(request, *args, **kwargs)
+            except:
+                return HttpResponseForbidden()
+            return HttpResponseForbidden()
+        return wrapper
+    return decorator
+
 

@@ -7,3 +7,4 @@ class Friends(models.Model):
                                       related_name="library_owner")
     invited = models.EmailField(max_length=70, null=False, blank=False)
 
+

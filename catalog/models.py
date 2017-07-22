@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse     # Used to generate URLs by reversing the URL patterns
-from datetime import date
+import datetime
 
 
 alphanumeric = RegexValidator(r'^[a-zA-Z ]+$', 'Only alphanumeric characters are allowed.')
@@ -64,17 +64,16 @@ class BookInstance(models.Model):
     """
     Model representing a specific copy of a book (i.e. that can be borrowed from the library).
     """
-    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True, blank=True)
 
     LOAN_STATUS = (
-        ('b', 'Borrowed from'),
-        ('f', 'From outside'),
         ('l', 'Loaned to'),
-        ('o', 'On outside'),
+        ('o', 'Outside'),
         ('a', 'Available'),
     )
     status = models.CharField(max_length=1, choices=LOAN_STATUS, null=False, blank=False, default='a')
     due_back = models.DateField(null=True, blank=True)
+    borrowed_day = models.DateField(null=True, blank=True)
     book_owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="owned_books")
     book_holder = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="held_books")
     comment = models.TextField(null=True, blank=True, max_length=1000)
@@ -93,12 +92,28 @@ class BookInstance(models.Model):
             return '%s (%s)' % (self.book.title, self.book_owner.username)
 
     def clean(self):
-        if self.status != 'a' and self.book_holder is None:
-            raise ValidationError('"Book holder" is required if status is not "Available".')
-        if self.status != 'a' and self.due_back is None:
-            raise ValidationError('"Due back" is required if status is not "Available".')
+        # default = datetime.date.today,
         if self.status == 'a':
-            self.book_holder = None
+            self.borrowed_day = None
             self.due_back = None
+            self.book_holder = None
+
+        if self.status == 'l' or self.status == 'o':
+            if self.borrowed_day is None:
+                # self.borrowed_day = datetime.date.today
+                self.borrowed_day = self.due_back
+
+        if self.status == 'l' and self.book_holder is None:
+            raise ValidationError('"Book holder" is required if status is "Loaned to".')
+
+        if (self.status == 'l' or self.status == 'o') and self.due_back is None:
+            raise ValidationError('"Due back" is required if status is not "Available".')
+
+        if self.due_back is not None and self.borrowed_day is not None:
+            if self.borrowed_day > self.due_back:
+                raise ValidationError('"Due back" must be later then "Borrowed day".')
+
+        if self.book_owner == self.book_holder:
+            raise ValidationError("You can't lean book to yourself ;_;")
 
 # from tutorial: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models

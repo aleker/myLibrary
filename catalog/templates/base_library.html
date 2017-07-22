@@ -21,6 +21,9 @@
     <div class="container">
         <ul class="nav nav-pills">
             <li><a href="{% url 'users_books_url' pk_user=request.resolver_match.kwargs.pk_user %}">My books</a></li>
+            {% if request.user.pk|add:"0" == request.resolver_match.kwargs.pk_user|add:"0" %}
+                <li><a href="{% url 'borrowed_books_url' pk_user=request.resolver_match.kwargs.pk_user %}">Borrowed books</a></li>
+            {% endif %}
             <li><a href="{% url 'users_book_create_url' pk_user=request.resolver_match.kwargs.pk_user %}">Add book</a></li>
         </ul>
 
@@ -44,4 +47,25 @@
     </div>
 
 {% endblock %}
+
+{% block scipt %}
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "2017:2018",
+                minDate: new Date(),
+                altFormat: "yyyy-mm-dd",
+                // You can put more options here.
+
+            });
+        });
+    </script>
+{% endblock %}
+
 

@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
 
-from accounts.decorators import is_friend
+from accounts.decorators import is_friend, is_me
 from catalog.models import BookInstance, Book
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from myLibrary import settings
@@ -86,6 +86,21 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
         return super(UsersBookListView, self).dispatch(*args, **kwargs)
 
 
+class BorrowedFromListView(LoginRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/borrowed_book_list.html'
+    paginate_by = 10
+
+    def get_queryset(self, **kwarg):
+        pk_user = self.kwargs.get('pk_user', '')
+        user = User.objects.get(id=pk_user)
+        return BookInstance.objects.filter(book_holder=user).order_by('due_back')
+
+    @method_decorator(is_me())
+    def dispatch(self, *args, **kwargs):
+        return super(BorrowedFromListView, self).dispatch(*args, **kwargs)
+
+
 @login_required
 # @method_decorator(is_friend())
 def create_book_instance(request, pk_user):
@@ -137,11 +152,11 @@ class BookInstanceDelete(DeleteView):
 
 class BookInstanceUpdate(UpdateView):
     model = BookInstance
-    fields = ['status', 'due_back', 'book_holder', 'comment']
+    form_class = BookInstanceForm
     template_name_suffix = '_update_form'
 
     def get_success_url(self):
-        return reverse('users_books_url')
+        return reverse('users_books_url', kwargs={'pk_user': self.kwargs.get('pk_user', '')})
 
     @method_decorator(is_friend())
     def dispatch(self, *args, **kwargs):
@@ -198,3 +213,4 @@ def create_book_from_api(request, pk_user):
             messages.add_message(request, messages.SUCCESS, 'Book added to library.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
