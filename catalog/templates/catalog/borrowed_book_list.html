@@ -21,11 +21,11 @@
 
                             {% if book_instance.status == 'l' %}
                                 <span class="text-warning">
-                                    (<strong>Borrowed from: </strong>{{ book_instance.book_owner }} <strong>until </strong> {{ book_instance.due_back }})
+                                    (<strong>Borrowed from: </strong>{{ book_instance.book_owner }} <strong>from </strong> {{ book_instance.borrowed_day }})
                                 </span>
                             {% elif book_instance.status == 'o'%}
                                 <span class="text-warning">
-                                    (<strong>Borrowed from: </strong>outside <strong>until </strong> {{ book_instance.due_back }})
+                                    (<strong>Borrowed from: </strong>outside <strong>from </strong> {{ book_instance.borrowed_day }})
                                 </span>
                             {% endif %}
                         </li>

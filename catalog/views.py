@@ -1,3 +1,4 @@
+import datetime
 import googlebooks
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,6 +15,7 @@ from django.views import generic
 from accounts.decorators import is_friend, is_me, is_friend2, is_me2
 from catalog.models import BookInstance, Book
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
+from history.models import History
 from myLibrary import settings
 
 
@@ -156,6 +158,7 @@ class BookInstanceUpdate(UpdateView):
     template_name_suffix = '_update_form'
 
     def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Book instance updated.")
         return reverse('users_books_url', kwargs={'pk_user': self.kwargs.get('pk_user', '')})
 
     @method_decorator(is_friend())
@@ -216,12 +219,34 @@ def create_book_from_api(request, *args, **kwargs):
 
 
 @login_required
-@is_me2
+# @is_me2
 def give_back_book(request, *args, **kwargs):
     pk_user = kwargs["pk_user"]
+    pk_book = kwargs["pk"]
+    change_status_and_add_to_history(pk_book, request)
+    return redirect('borrowed_books_url', pk_user=pk_user)
+
+
+def change_status_and_add_to_history(pk_book, request):
+    book_instance = BookInstance.objects.get(pk=pk_book)
     try:
-        pk_book = kwargs["pk"]
-        book_instance = BookInstance.objects.get(pk=pk_book)
+        holder = 'outside'
+        if book_instance.book_holder:
+            holder = book_instance.book_holder.username
+        # create history:
+        # TODO saving history not working
+        hist = History(book_instance=book_instance,
+                       book_holder_name=holder,
+                       book_owner_name=book_instance.book_owner.username,
+                       borrowed_day=book_instance.borrowed_day,
+                       returning_day=datetime.date.today)
+        hist.save()
+        transaction.commit()
+        messages.add_message(request, messages.SUCCESS, "New position added to book history.")
+    except:
+        messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to history.')
+
+    try:
         book_instance.status = 'a'
         book_instance.book_holder = None
         book_instance.borrowed_day = None
@@ -229,4 +254,5 @@ def give_back_book(request, *args, **kwargs):
         messages.add_message(request, messages.SUCCESS, "Borrowed book is no longer in your library.")
     except:
         messages.add_message(request, messages.WARNING, 'Problem occurred when giving book back.')
-    return redirect('borrowed_books_url', pk_user=pk_user)
+        return
+    return

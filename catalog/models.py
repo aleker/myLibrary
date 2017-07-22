@@ -7,15 +7,7 @@ from django.db import models
 from django.urls import reverse     # Used to generate URLs by reversing the URL patterns
 import datetime
 
-
 alphanumeric = RegexValidator(r'^[a-zA-Z ]+$', 'Only alphanumeric characters are allowed.')
-
-
-@property
-def is_overdue(book_instance):
-    if book_instance.due_back and date.today() > book_instance.due_back:
-        return True
-    return False
 
 
 class Genre(models.Model):

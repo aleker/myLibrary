@@ -67,7 +67,7 @@ def is_me2(function):
             this_user = request.user
             pk_of_friend_this_user_wants_to_visit = kwargs.get('pk_user', '')
             friend_this_user_wants_to_visit = User.objects.get(id=pk_of_friend_this_user_wants_to_visit)
-            if this_user == friend_this_user_wants_to_visit:
+            if this_user.username == friend_this_user_wants_to_visit.username:
                 return function(request, *args, **kwargs)
         except:
             return HttpResponseForbidden()
