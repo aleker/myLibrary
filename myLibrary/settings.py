@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'invitations',
     'bootstrap3',
+    'django_filters',
     'accounts',
     'mainPage',
     'catalog',

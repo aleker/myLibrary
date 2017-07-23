@@ -13,6 +13,7 @@ from django.views.generic import DeleteView, UpdateView, CreateView
 from django.views import generic
 
 from accounts.decorators import is_friend, is_me, is_friend2, is_me2
+from catalog.filters import BookFilter, BookInstanceFilter
 from catalog.models import BookInstance, Book
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from history.models import History
@@ -114,7 +115,14 @@ def create_book_instance(request, *args, **kwargs):
         form = FriendsBookInstanceForm(initial={'book_owner': user, 'status': 'a'})
 
     if request.method == 'POST':
-        if 'sub_adding' in request.POST:
+        if 'sub_adding_by_book' in request.POST:
+            requested_book_pk = request.POST['book_pk']
+            requested_book = Book.objects.get(pk=requested_book_pk)
+            form = BookInstanceForm(initial={'book_owner': user, 'status': 'a', 'book': requested_book})
+            if form.is_valid():
+                form.save()
+                return redirect('users_books_url', pk_user=pk_user)
+        elif 'sub_adding' in request.POST:
             if user == request.user:
                 form = BookInstanceForm(request.POST, initial={'book_owner': user, 'status': 'a'})
             else:
@@ -261,4 +269,20 @@ def add_to_history(request, book_instance):
         messages.add_message(request, messages.SUCCESS, "New position added to book history.")
     except:
         messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to history.')
+
+
+def search_book(request):
+    book_list = Book.objects.all()
+    book_filter = BookFilter(request.GET, queryset=book_list)
+    return render(request, 'search/book_list.html', {'filter': book_filter})
+
+
+@login_required
+@is_friend2
+def search_bookinstance(request, *args, **kwargs):
+    pk_user = kwargs["pk_user"]
+    user = User.objects.get(id=pk_user)
+    book_list = BookInstance.objects.filter(book_owner=user)
+    book_filter = BookInstanceFilter(request.GET, queryset=book_list)
+    return render(request, 'search/bookinstance_list.html', {'filter': book_filter})
 
