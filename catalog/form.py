@@ -10,7 +10,7 @@ DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 class BookInstanceForm(ModelForm):
     class Meta:
         model = BookInstance
-        fields = ('book', 'book_owner', 'status', 'borrowed_day', 'book_holder', 'comment')
+        fields = ('book', 'book_owner', 'status', 'borrowed_day', 'book_holder', 'now_reading', 'comment')
         widgets = {
             'borrowed_day': forms.DateInput(attrs={'class': 'datepicker'}),
         }

@@ -18,6 +18,8 @@ urlpatterns = [
         name='users_books_delete_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/edit/(?P<pk>\d+)$', login_required(views.BookInstanceUpdate.as_view()),
         name='users_books_update_url'),
+    url(r'^(?P<pk_user>\d+)/mybooks/bookreadinghistory/(?P<pk>\d+)$',
+        login_required(views.BookReadingHistoryList.as_view()), name='book_reading_history_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/create/$', views.create_book_instance, name='users_book_create_url'),
     # url(r'^(?P<pk_user>\d+)/mybooks/$', login_required(views.UsersBookListView.as_view()), name='users_books_url'),
     url(r'^(?P<pk_user>\d+)/mybooks/search/$', views.search_bookinstance, name='users_books_url'),

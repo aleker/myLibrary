@@ -68,6 +68,7 @@ class BookInstance(models.Model):
     book_owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="owned_books")
     book_holder = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="held_books")
     comment = models.TextField(null=True, blank=True, max_length=1000)
+    now_reading = models.BooleanField(null=False, blank=False, default=False)
 
     class Meta:
         ordering = ["-status", "book"]
@@ -96,5 +97,28 @@ class BookInstance(models.Model):
 
         if self.book_owner == self.book_holder:
             raise ValidationError("You can't lean book to yourself ;_;")
+
+
+class BookReadingHistory(models.Model):
+    book_instance = models.ForeignKey(BookInstance, on_delete=models.CASCADE, null=False, blank=False)
+    reader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    start_reading = models.DateField(null=False, blank=False, default=datetime.date.today)
+    end_reading = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-start_reading", "book_instance"]
+        unique_together = (("book_instance", "reader", "start_reading"),)
+
+    def __str__(self):
+        """
+        String for representing the Model object
+        """
+        if self.book_instance and self.start_reading and self.end_reading:
+            return '%s (%s - %s)' % (self.book_instance, self.start_reading, self.end_reading)
+        elif self.book_instance and self.start_reading:
+            return '%s (%s - now)' % (self.book_instance, self.start_reading)
+        else:
+            return '%s' % self.book_instance
+
 
 # from tutorial: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models

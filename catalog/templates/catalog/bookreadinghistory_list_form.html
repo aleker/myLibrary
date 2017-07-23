@@ -1,0 +1,24 @@
+{% extends "base_library.html" %}
+
+{% block catalog_content %}
+
+    <h1>Reading history</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">Reading history</div>
+        <div class="panel-body">
+
+            {% if bookreadinghistory_list %}
+                <ol class="list-group">
+                    {% for info in bookreadinghistory_list %}
+                        <li class="list-group-item">
+                            {{ info }} to : <span class="text-info">{{ info.reader }}</span>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p>The reading history of this book is empty.</p>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

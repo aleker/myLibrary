@@ -14,7 +14,7 @@ from django.views import generic
 
 from accounts.decorators import is_friend, is_me, is_friend2, is_me2
 from catalog.filters import BookFilter, BookInstanceFilter
-from catalog.models import BookInstance, Book
+from catalog.models import BookInstance, Book, BookReadingHistory
 from catalog.form import BookInstanceForm, FriendsBookInstanceForm
 from history.models import History
 from myLibrary import settings
@@ -178,6 +178,7 @@ class BookInstanceUpdate(UpdateView):
             requested_book_instance = BookInstance.objects.filter(id=kwargs['pk']).first()
             if requested_book_instance and requested_book_instance.status != 'a':
                 add_to_history(request, requested_book_instance)
+        add_now_reading(request, **kwargs)
         return super(BookInstanceUpdate, self).post(request, **kwargs)
 
 
@@ -286,3 +287,50 @@ def search_bookinstance(request, *args, **kwargs):
     book_filter = BookInstanceFilter(request.GET, queryset=book_list)
     return render(request, 'search/bookinstance_list.html', {'filter': book_filter})
 
+
+@login_required
+@is_me2
+def add_now_reading(request, **kwargs):
+    pk_user = request.user.pk
+    pk_book = kwargs["pk"]
+    reader = User.objects.get(pk=pk_user)
+    book_instance = BookInstance.objects.get(pk=pk_book)
+    add_now_reading_to_history(request, book_instance, reader)
+    return redirect('borrowed_books_url', pk_user=pk_user)
+
+
+@transaction.atomic
+def add_now_reading_to_history(request, book_instance, reader):
+    todays_day = datetime.date.today()
+    try:
+        hist = None
+        if request.POST["now_reading"]:
+            hist = BookReadingHistory(book_instance=book_instance,
+                                      reader=reader,
+                                      start_reading=todays_day)
+            hist.save()
+            messages.add_message(request, messages.SUCCESS, "New position added to reading history.")
+        elif not request.POST["now_reading"]:
+            hist = BookReadingHistory.objects.filter(book_instance=book_instance,reader=reader, start_reading=todays_day).first()
+            if hist:
+                hist["end_reading"] = todays_day
+                hist.save()
+                messages.add_message(request, messages.SUCCESS, "New position added to reading history.")
+    except:
+        messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to reading history.')
+
+
+class BookReadingHistoryList(LoginRequiredMixin, generic.ListView):
+    model = BookReadingHistory
+    template_name_suffix = '_list_form'
+    paginate_by = 10
+
+    # filter what you want to return:
+    def get_queryset(self, **kwarg):
+        pk_book_instance = self.kwargs.get('pk')
+        book_instance = BookInstance.objects.get(id=pk_book_instance)
+        return BookReadingHistory.objects.filter(book_instance=book_instance).order_by('-start_reading')
+
+    @method_decorator(is_friend())
+    def dispatch(self, *args, **kwargs):
+        return super(BookReadingHistoryList, self).dispatch(*args, **kwargs)

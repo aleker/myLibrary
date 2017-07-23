@@ -15,7 +15,8 @@
                     <li class="list-group-item {% if book_instance.is_overdue %}text-danger{% endif %}">
                         <a href="{% url 'book_detail_url' book_instance.book.pk %}">{{ book_instance.book.title }} </a>({{ book_instance.book.author }})
                         <span class="pull-right">
-                                <a href="{% url 'books_history_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> History </a>
+                                <a href="{% url 'book_reading_history_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> Reading  </a>
+                                <a href="{% url 'books_history_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> Lending </a>
                                 <a href="{% url 'users_books_update_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> Edit </a>
                                 <a href="{% url 'users_books_delete_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}">
                                     <span class="text-muted"> Delete </span>
@@ -33,6 +34,11 @@
                             {% elif book_instance.status == 'o' %}
                                 <span class="text-warning">
                                     (<strong>loaned to: </strong>outside <strong>from </strong> {{ book_instance.borrowed_day }})
+                                </span>
+                            {% endif %}
+                            {% if book_instance.now_reading %}
+                                <span class="text-info">
+                                    (<strong>now reading</strong>)
                                 </span>
                             {% endif %}
                         {% endif %}
