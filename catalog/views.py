@@ -81,7 +81,7 @@ class UsersBookListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwarg):
         pk_user = self.kwargs.get('pk_user', '')
         user = User.objects.get(id=pk_user)
-        return BookInstance.objects.filter(book_owner=user).order_by('borrowed_day')
+        return BookInstance.objects.filter(book_owner=user).order_by('-status', 'book')
 
     @method_decorator(is_friend())
     def dispatch(self, *args, **kwargs):
@@ -96,7 +96,7 @@ class BorrowedFromListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwarg):
         pk_user = self.kwargs.get('pk_user', '')
         user = User.objects.get(id=pk_user)
-        return BookInstance.objects.filter(book_holder=user).order_by('borrowed_day')
+        return BookInstance.objects.filter(book_holder=user).order_by('borrowed_day', 'book')
 
     @method_decorator(is_me())
     def dispatch(self, *args, **kwargs):
@@ -165,6 +165,13 @@ class BookInstanceUpdate(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(BookInstanceUpdate, self).dispatch(*args, **kwargs)
 
+    def post(self, request, **kwargs):
+        if request.POST['status'] == 'a':
+            requested_book_instance = BookInstance.objects.filter(id=kwargs['pk']).first()
+            if requested_book_instance and requested_book_instance.status != 'a':
+                add_to_history(request, requested_book_instance)
+        return super(BookInstanceUpdate, self).post(request, **kwargs)
+
 
 def isbn_page(request):
     isbn_no = request.GET["isbn"]
@@ -219,33 +226,12 @@ def create_book_from_api(request, *args, **kwargs):
 
 
 @login_required
-# @is_me2
-def give_back_book(request, *args, **kwargs):
+@is_me2
+def give_book_back(request, *args, **kwargs):
     pk_user = kwargs["pk_user"]
     pk_book = kwargs["pk"]
-    change_status_and_add_to_history(pk_book, request)
-    return redirect('borrowed_books_url', pk_user=pk_user)
-
-
-def change_status_and_add_to_history(pk_book, request):
     book_instance = BookInstance.objects.get(pk=pk_book)
-    try:
-        holder = 'outside'
-        if book_instance.book_holder:
-            holder = book_instance.book_holder.username
-        # create history:
-        # TODO saving history not working
-        hist = History(book_instance=book_instance,
-                       book_holder_name=holder,
-                       book_owner_name=book_instance.book_owner.username,
-                       borrowed_day=book_instance.borrowed_day,
-                       returning_day=datetime.date.today)
-        hist.save()
-        transaction.commit()
-        messages.add_message(request, messages.SUCCESS, "New position added to book history.")
-    except:
-        messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to history.')
-
+    add_to_history(request, book_instance)
     try:
         book_instance.status = 'a'
         book_instance.book_holder = None
@@ -254,5 +240,25 @@ def change_status_and_add_to_history(pk_book, request):
         messages.add_message(request, messages.SUCCESS, "Borrowed book is no longer in your library.")
     except:
         messages.add_message(request, messages.WARNING, 'Problem occurred when giving book back.')
-        return
-    return
+    return redirect('borrowed_books_url', pk_user=pk_user)
+
+
+@transaction.atomic
+def add_to_history(request, book_instance):
+    try:
+        holder = 'outside'
+        if book_instance.book_holder:
+            holder = book_instance.book_holder.username
+        todays_day = datetime.date.today()
+        # create history:
+        hist = History(book_instance=book_instance,
+                       book_holder_name=holder,
+                       book_owner_name=book_instance.book_owner.username,
+                       borrowed_day=book_instance.borrowed_day,
+                       returning_day=todays_day)
+        # hist.save(force_insert=True)
+        hist.save()
+        messages.add_message(request, messages.SUCCESS, "New position added to book history.")
+    except:
+        messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to history.')
+

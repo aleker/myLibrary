@@ -1,5 +1,4 @@
 import datetime
-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -12,11 +11,13 @@ class History(models.Model):
     book_holder_name = models.TextField(null=False, blank=False, max_length=30)
 
     class Meta:
-        ordering = ["-borrowed_day"]
+        ordering = ['-borrowed_day']
         # unique_together = (("book_instance", "borrowed_day", "returning_day"),)
 
     def __str__(self):
         if self.borrowed_day is not None and self.returning_day is not None:
             return '%s (%s - %s)' % (self.book_instance.book.title, self.borrowed_day, self.returning_day)
+        elif self.borrowed_day is not None:
+            return '%s (%s - now)' % (self.book_instance.book.title, self.borrowed_day)
         else:
             return '%s' % self.book_instance.book.title

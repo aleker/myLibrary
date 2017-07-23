@@ -70,7 +70,7 @@ class BookInstance(models.Model):
     comment = models.TextField(null=True, blank=True, max_length=1000)
 
     class Meta:
-        ordering = ['book_owner', 'book']
+        ordering = ["-status", "book"]
         unique_together = (("book", "book_owner"),)
 
     def __str__(self):

@@ -13,6 +13,7 @@
                         <li class="list-group-item {% if book_instance.is_overdue %}text-danger{% endif %}">
                             <a href="{% url 'book_detail_url' book_instance.book.pk %}">{{ book_instance.book.title }}</a>
                             <span class="pull-right">
+                                <a href="{% url 'books_history_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> History </a>
                                 <a href="{% url 'users_books_update_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}"> Edit </a>
                                 <a href="{% url 'users_books_delete_url' pk_user=request.resolver_match.kwargs.pk_user pk=book_instance.pk %}">
                                     <span class="text-muted"> Delete </span>
@@ -34,11 +35,10 @@
                         </li>
                     {% endfor %}
                 </ol>
-                </div>
-                </div>
-
             {% else %}
                 <p>There are no books in your private library.</p>
             {% endif %}
+        </div>
+    </div>
 
 {% endblock %}
