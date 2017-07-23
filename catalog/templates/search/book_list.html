@@ -19,7 +19,7 @@
                             <form action="{% url 'users_book_create_url' pk_user=user.pk %}" method="post">
                                 {% csrf_token %}
                                 <input type="hidden" name="book_pk" value="{{ book.pk }}">
-                                <button class="submit_btn btn label-success" name="sub_adding_by_book">Add to my library</button>
+                                <button class="btn btn-default" name="sub_adding_by_book">Add to my library</button>
                             </form>
 
                     </li>
