@@ -293,6 +293,7 @@ def search_bookinstance(request, *args, **kwargs):
 def add_now_reading(request, **kwargs):
     pk_user = request.user.pk
     pk_book = kwargs["pk"]
+    pk_owner = kwargs["pk_user"]
     reader = User.objects.get(pk=pk_user)
     book_instance = BookInstance.objects.get(pk=pk_book)
     add_now_reading_to_history(request, book_instance, reader)
@@ -304,18 +305,30 @@ def add_now_reading_to_history(request, book_instance, reader):
     todays_day = datetime.date.today()
     try:
         hist = None
-        if request.POST["now_reading"]:
+        if "now_reading" in request.POST:
+            # if: exits hist when this bookinstance is reading now
+            hist = BookReadingHistory.objects.filter(book_instance=book_instance,
+                                                     reader=reader,
+                                                     end_reading=None).first()
+            if hist:
+                return
+            # else: create new hist
             hist = BookReadingHistory(book_instance=book_instance,
                                       reader=reader,
-                                      start_reading=todays_day)
+                                      start_reading=todays_day,
+                                      end_reading=None)
             hist.save()
             messages.add_message(request, messages.SUCCESS, "New position added to reading history.")
-        elif not request.POST["now_reading"]:
-            hist = BookReadingHistory.objects.filter(book_instance=book_instance,reader=reader, start_reading=todays_day).first()
-            if hist:
-                hist["end_reading"] = todays_day
-                hist.save()
-                messages.add_message(request, messages.SUCCESS, "New position added to reading history.")
+        else:
+            # if: exits hist when this bookinstance was reading until now
+            hist = BookReadingHistory.objects.filter(book_instance=book_instance,
+                                                     reader=reader,
+                                                     end_reading=None).first()
+            if not hist:
+                return
+            hist.end_reading = todays_day
+            hist.save()
+            messages.add_message(request, messages.SUCCESS, "Reading history updated.")
     except:
         messages.add_message(request, messages.WARNING, 'Problem occurred when adding new position to reading history.')
 
