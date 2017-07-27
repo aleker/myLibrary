@@ -15,9 +15,9 @@
                     <a class="navbar-brand" href=""><strong>{{ user }}</strong></a>
                 </div>
                 <li class="{% if active == 'profile' %} active {% endif %}" id="profile"><a href="{% url 'profile_url' %}">Profile</a></li>
+                <li class="{% if active == 'friends' %} active {% endif %}" id="friends"><a href="{% url 'friends_url' %}">Friends</a></li>
                 <li class="{% if active == 'catalog' %} active {% endif %}" id="catalog"><a href="{% url 'catalog_url' %}">Catalog</a></li>
                 <li class="{% if active == 'library' %} active {% endif %}" id="users-library"><a href="{% url 'users_books_url' pk_user=user.pk %}">My Library</a></li>
-                <li class="{% if active == 'friends' %} active {% endif %}" id="friends"><a href="{% url 'friends_url' %}">Friends</a></li>
                 {% if request.resolver_match.kwargs.pk_user %}
                     {% if request.resolver_match.kwargs.pk_user|add:"0" != user.pk|add:"0" %}
                         <div class="navbar-header">

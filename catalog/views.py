@@ -15,7 +15,7 @@ from django.views import generic
 from accounts.decorators import is_friend, is_me, is_friend2, is_me2
 from catalog.filters import BookFilter, BookInstanceFilter
 from catalog.models import BookInstance, Book, BookReadingHistory
-from catalog.form import BookInstanceForm, FriendsBookInstanceForm
+from catalog.form import BookInstanceForm, FriendsBookInstanceForm, BookInstanceEditForm
 from history.models import History
 from myLibrary import settings
 
@@ -162,14 +162,14 @@ class BookInstanceDelete(DeleteView):
 
 class BookInstanceUpdate(UpdateView):
     model = BookInstance
-    form_class = BookInstanceForm
+    form_class = BookInstanceEditForm
     template_name_suffix = '_update_form'
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Book instance updated.")
         return reverse('users_books_url', kwargs={'pk_user': self.kwargs.get('pk_user', '')})
 
-    @method_decorator(is_friend())
+    @method_decorator(is_me())
     def dispatch(self, *args, **kwargs):
         return super(BookInstanceUpdate, self).dispatch(*args, **kwargs)
 
@@ -207,6 +207,7 @@ def create_book_from_api(request, *args, **kwargs):
     if request.method == 'POST':
         api = googlebooks.Api()
         isbn = request.POST["isbn"]
+        comment = request.POST['comment']
         book = api.list('isbn:' + isbn)
         if book and book["totalItems"] > 0:
             try:
@@ -227,7 +228,7 @@ def create_book_from_api(request, *args, **kwargs):
                 if book_instance_exists is not None:
                     messages.add_message(request, messages.WARNING, 'This book already is in your library.')
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            new_instance = BookInstance(book=book_exists, book_owner=user)
+            new_instance = BookInstance(book=book_exists, book_owner=user, comment=comment)
             new_instance.save()
             messages.add_message(request, messages.SUCCESS, 'Book added to library.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

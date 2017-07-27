@@ -107,7 +107,7 @@ class BookReadingHistory(models.Model):
 
     class Meta:
         ordering = ["-start_reading", "book_instance"]
-        unique_together = (("book_instance", "reader", "start_reading"),)
+        # unique_together = (("book_instance", "reader", "start_reading"),)
 
     def __str__(self):
         """

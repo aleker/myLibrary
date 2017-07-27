@@ -59,13 +59,15 @@
                                     {{ found_author }}
                                 {% endfor %})
                                 {% if found_book.volumeInfo.industryIdentifiers.1.identifier %}
-
-                                <form action="{% url 'users_book_create_from_api_url' pk_user=request.resolver_match.kwargs.pk_user %}" method="post" style="display: inline" class="pull-right">
-                                {% csrf_token %}
-                                    <input type="text" class="text-muted" name="isbn"
-                                           value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}" hidden />
-                                    {% bootstrap_button "Add to My Library" button_class="btn-primary" button_type="submit" name="add_outer" %}
-                                </form>
+                                    <form action="{% url 'users_book_create_from_api_url' pk_user=request.resolver_match.kwargs.pk_user %}"
+                                          method="post" style="display: inline" class="pull-right">
+                                        {% csrf_token %}
+                                        <input type="text" class="text-muted" name="isbn"
+                                               value="{{ found_book.volumeInfo.industryIdentifiers.1.identifier }}"
+                                               hidden/>
+                                        <input type="text" class="text-muted" name="comment" placeholder="Leave your comment"/>
+                                        {% bootstrap_button "Add to My Library" button_class="btn-primary" button_type="submit" name="add_outer" %}
+                                    </form>
                                 {% endif %}
                             </ul>
                         {% endfor %}

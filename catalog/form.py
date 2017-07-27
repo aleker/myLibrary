@@ -24,6 +24,24 @@ class BookInstanceForm(ModelForm):
             pass
 
 
+class BookInstanceEditForm(ModelForm):
+    class Meta:
+        model = BookInstance
+        fields = ('book', 'book_owner', 'status', 'borrowed_day', 'book_holder', 'now_reading', 'comment')
+        widgets = {
+            'borrowed_day': forms.DateInput(attrs={'class': 'datepicker'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(BookInstanceEditForm, self).__init__(*args, **kwargs)
+        try:
+            self.fields['book'].widget = forms.HiddenInput()
+            self.fields['book_owner'].widget = forms.HiddenInput()
+            self.fields['borrowed_day'].initial = datetime.date.today
+        except:
+            pass
+
+
 class FriendsBookInstanceForm(ModelForm):
     class Meta:
         model = BookInstance
