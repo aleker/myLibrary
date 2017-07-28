@@ -178,7 +178,8 @@ class BookInstanceUpdate(UpdateView):
             requested_book_instance = BookInstance.objects.filter(id=kwargs['pk']).first()
             if requested_book_instance and requested_book_instance.status != 'a':
                 add_to_history(request, requested_book_instance)
-        add_now_reading(request, **kwargs)
+            if requested_book_instance and requested_book_instance.status == 'a':
+                add_now_reading(request, **kwargs)
         return super(BookInstanceUpdate, self).post(request, **kwargs)
 
 

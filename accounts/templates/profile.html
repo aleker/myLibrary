@@ -23,22 +23,29 @@
         <p class="text-muted">({{ user.email }})</p>
 
         <div class="panel panel-default">
-            <div class="panel-heading">Books on loan</div>
+            <div class="panel-heading">Lending statistics</div>
             <div class="panel-body">
-                <p>Books <a href="{% url 'borrowed_books_url' pk_user=user.pk %}">borrowed from</a>...</p>
-                <p>Books <a href="{% url 'users_books_url' pk_user=user.pk %}">lent to</a>...</p>
+                <ul class="list-group">
+                    <li class="list-group-item">Borrowed Books: <strong class="text-info">{{ borrowed_count }}</strong>
+                        <a class="pull-right" href="{% url 'borrowed_books_url' pk_user=user.pk %}">see more..</a>
+                    </li>
+                    <li class="list-group-item">Loaned Books: <strong class="text-info">{{ lend_count }}</strong>
+                        <a class="pull-right" href="{% url 'users_books_url' pk_user=user.pk %}">see more..</a>
+                    </li>
+                </ul>
             </div>
         </div>
 
         <div class="panel panel-default">
-            <div class="panel-heading">Book's statistics</div>
+            <div class="panel-heading">Reading statistics</div>
             <div class="panel-body">
-                <p>Read since {{ last_month }}: <strong class="text-info">{{ book_count }}</strong></p>
+                <p>Read since <strong>{{ last_month }}</strong>: <strong class="text-info">{{ book_count }}</strong></p>
                 {% if book_list %}
                     <ol class="list-group">
                         {% for read_book in book_list %}
                             <li class="list-group-item">
                                 <a href="
+
                                         {% if read_book.book_instance.book %}{% url 'users_books_update_url' pk_user=user.pk pk=read_book.book_instance.book.pk %}
                                     {% else %}
                                     {% endif %}">{{ read_book.book_instance.book.title }}</a>

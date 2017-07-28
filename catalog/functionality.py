@@ -1,6 +1,6 @@
 import datetime
 
-from catalog.models import BookReadingHistory
+from catalog.models import BookReadingHistory, BookInstance
 
 
 def average_month_reading(user):
@@ -21,5 +21,14 @@ def currently_reading(user):
     )
     return book_reading_history
 
+
+def currently_borrowed_from(user):
+    borrowed_books = BookInstance.objects.filter(book_holder=user)
+    return len(borrowed_books)
+
+
+def currently_lend_to(user):
+    borrowed_books = BookInstance.objects.filter(book_owner=user).exclude(status='a')
+    return len(borrowed_books)
 
 
