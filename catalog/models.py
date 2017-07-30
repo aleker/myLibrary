@@ -94,6 +94,9 @@ class BookInstance(models.Model):
             if self.now_reading:
                 raise ValidationError("You can't read book and lend it to someone at the same time.")
 
+        if self.status == 'o':
+            self.book_holder = None
+
         if self.status == 'l' and self.book_holder is None:
             raise ValidationError('"Book holder" is required if status is "Loaned to".')
 

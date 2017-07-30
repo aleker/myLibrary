@@ -45,8 +45,7 @@
                         {% for read_book in book_list %}
                             <li class="list-group-item">
                                 <a href="
-
-                                        {% if read_book.book_instance.book %}{% url 'users_books_update_url' pk_user=user.pk pk=read_book.book_instance.book.pk %}
+                                    {% if read_book.book_instance.book %}{% url 'users_books_update_url' pk_user=user.pk pk=read_book.book_instance.pk %}
                                     {% else %}
                                     {% endif %}">{{ read_book.book_instance.book.title }}</a>
                                 <span class="text-muted"> ({{ read_book.start_reading }} - {{ read_book.end_reading }})</span>
@@ -60,7 +59,10 @@
                     <ol class="list-group">
                         {% for read_book in cur_book_list %}
                             <li class="list-group-item">
-                                {{ read_book.book_instance.book.title }}
+                                <a href="
+                                    {% if read_book.book_instance.book %}{% url 'users_books_update_url' pk_user=user.pk pk=read_book.book_instance.pk %}
+                                    {% else %}
+                                    {% endif %}">{{ read_book.book_instance.book.title }}</a>
                                 <span class="text-muted"> ({{ read_book.start_reading }} - now)</span>
                             </li>
                         {% endfor %}

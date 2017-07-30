@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from friends.models import Friends
+
+admin.site.register(Friends)

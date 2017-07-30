@@ -192,6 +192,4 @@ INVITATIONS_LOGIN_REDIRECT = 'login_url'
 INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
 INVITE_MODE = True
 
-
-
 blank_cover_url = 'http://blog.hrc.utexas.edu/files/2014/05/LemonCover_001.jpg'
